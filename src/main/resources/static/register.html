@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Registration - ANNAM Food Distribution</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="auth-page-wrapper">
+    <div class="auth-card auth-card-wide my-4 shadow-sm border-0">
+        <!-- Logo & Branding -->
+        <div class="text-center mb-4">
+            <div class="auth-brand-badge">
+                <i class="bi bi-box2-heart"></i>
+            </div>
+            <h3 class="auth-title">Food Donor Registration</h3>
+            <p class="auth-subtitle">Join ANNAM to reduce food waste and support community feeding</p>
+        </div>
+
+        <!-- Alert messages -->
+        <div id="register-alert-container"></div>
+
+        <!-- Registration Form -->
+        <form id="register-form" novalidate>
+            <div class="row g-3">
+                <!-- Full Name -->
+                <div class="col-md-6">
+                    <label for="reg-fullname" class="form-label small fw-bold text-dark">
+                        Full Name <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-person input-icon-left"></i>
+                        <input type="text" class="form-control" id="reg-fullname" placeholder="e.g. Ramesh Kumar" required autocomplete="name">
+                    </div>
+                    <div class="invalid-feedback">Full name is required.</div>
+                </div>
+
+                <!-- Organization Name (Optional) -->
+                <div class="col-md-6">
+                    <label for="reg-org" class="form-label small fw-bold text-dark">
+                        Organization / Restaurant Name <span class="text-muted fw-normal">(Optional)</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-building input-icon-left"></i>
+                        <input type="text" class="form-control" id="reg-org" placeholder="e.g. Royal Caterers / Grand Palace">
+                    </div>
+                </div>
+
+                <!-- Donor Type -->
+                <div class="col-md-6">
+                    <label for="reg-donor-type" class="form-label small fw-bold text-dark">
+                        Donor Type <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-tags input-icon-left"></i>
+                        <select class="form-select" id="reg-donor-type" required>
+                            <option value="" disabled selected>-- Select Donor Type --</option>
+                            <option value="Individual">Individual Donor</option>
+                            <option value="Restaurant">Restaurant / Eatery</option>
+                            <option value="Hotel">Hotel / Banquet Hall</option>
+                            <option value="Institution">Institution / College Canteen</option>
+                            <option value="Other">Other Community Entity</option>
+                        </select>
+                    </div>
+                    <div class="invalid-feedback">Please select your donor type.</div>
+                </div>
+
+                <!-- City / Locality -->
+                <div class="col-md-6">
+                    <label for="reg-city" class="form-label small fw-bold text-dark">
+                        City or Locality <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-geo input-icon-left"></i>
+                        <input type="text" class="form-control" id="reg-city" placeholder="e.g. Central Chennai / T. Nagar" required>
+                    </div>
+                    <div class="invalid-feedback">City or locality is required.</div>
+                </div>
+
+                <!-- Pickup Street Address -->
+                <div class="col-md-6">
+                    <label for="reg-address" class="form-label small fw-bold text-dark">
+                        Pickup Address <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-signpost-split input-icon-left"></i>
+                        <input type="text" class="form-control" id="reg-address" placeholder="e.g. 12 Gandhi Road, Bay 2" required>
+                    </div>
+                    <div class="invalid-feedback">Pickup address is required.</div>
+                </div>
+
+                <!-- Preferred Pickup Location (Road Network Zone) -->
+                <div class="col-md-6">
+                    <label for="reg-location" class="form-label small fw-bold text-dark">
+                        Road Network Zone (Routing) <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-geo-alt input-icon-left"></i>
+                        <select class="form-select" id="reg-location" required>
+                            <option value="" disabled selected>Loading locations...</option>
+                        </select>
+                    </div>
+                    <div class="invalid-feedback">Please select your primary pickup zone.</div>
+                </div>
+
+                <!-- Email -->
+                <div class="col-md-6">
+                    <label for="reg-email" class="form-label small fw-bold text-dark">
+                        Email Address <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-envelope input-icon-left"></i>
+                        <input type="email" class="form-control" id="reg-email" placeholder="donor@example.com" required autocomplete="email">
+                    </div>
+                    <div class="invalid-feedback">A valid email address is required.</div>
+                </div>
+
+                <!-- Phone -->
+                <div class="col-md-6">
+                    <label for="reg-phone" class="form-label small fw-bold text-dark">
+                        Mobile Number <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-telephone input-icon-left"></i>
+                        <input type="tel" class="form-control" id="reg-phone" placeholder="+91-98401-XXXXX" required autocomplete="tel">
+                    </div>
+                    <div class="invalid-feedback">Mobile number is required.</div>
+                </div>
+
+                <!-- Password -->
+                <div class="col-md-6">
+                    <label for="reg-password" class="form-label small fw-bold text-dark">
+                        Password (min 6 chars) <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-lock input-icon-left"></i>
+                        <input type="password" class="form-control" id="reg-password" placeholder="Create a password" minlength="6" required autocomplete="new-password">
+                        <button type="button" class="password-toggle-btn" id="btn-toggle-reg-password" tabindex="-1">
+                            <i class="bi bi-eye" id="eye-icon-pass"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback">Password must be at least 6 characters.</div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="col-md-6">
+                    <label for="reg-confirm-password" class="form-label small fw-bold text-dark">
+                        Confirm Password <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-shield-check input-icon-left"></i>
+                        <input type="password" class="form-control" id="reg-confirm-password" placeholder="Re-enter password" required autocomplete="new-password">
+                        <button type="button" class="password-toggle-btn" id="btn-toggle-confirm-password" tabindex="-1">
+                            <i class="bi bi-eye" id="eye-icon-confirm"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback" id="confirm-feedback">Passwords must match.</div>
+                </div>
+            </div>
+
+            <!-- Role Notice -->
+            <div class="alert alert-light border small text-muted d-flex align-items-center gap-2 mt-3 mb-3 py-2 px-3">
+                <i class="bi bi-shield-lock-fill text-success"></i>
+                <div>All public registrations automatically receive the <strong>DONOR</strong> role with secure portal access.</div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn auth-btn-primary w-100 d-flex align-items-center justify-content-center gap-2" id="btn-submit-register">
+                <span id="reg-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                <span><i class="bi bi-person-check-fill"></i> Complete Registration</span>
+            </button>
+        </form>
+
+        <!-- Back to Login Link -->
+        <div class="text-center mt-4 pt-2 border-top">
+            <p class="small text-muted mb-0">
+                Already registered? 
+                <a href="/login.html" class="fw-semibold text-success text-decoration-none">
+                    Log in to your account <i class="bi bi-arrow-right-short"></i>
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadLocations();
+        initPasswordToggles();
+        initRegisterHandler();
+    });
+
+    async function loadLocations() {
+        const select = document.getElementById('reg-location');
+        try {
+            const res = await fetch('/api/routing/locations');
+            if (!res.ok) throw new Error('Failed to load locations');
+            const locations = await res.json();
+            select.innerHTML = '<option value="" disabled selected>-- Select Road Network Zone --</option>' +
+                locations.map(loc => `<option value="${loc.locationId}">${loc.locationId} - ${loc.name} (${loc.zoneType})</option>`).join('');
+        } catch (err) {
+            select.innerHTML = '<option value="LOC01">LOC01 - Central Hub (Transit)</option>';
+        }
+    }
+
+    function initPasswordToggles() {
+        const btnPass = document.getElementById('btn-toggle-reg-password');
+        const inputPass = document.getElementById('reg-password');
+        const eyePass = document.getElementById('eye-icon-pass');
+
+        btnPass.addEventListener('click', () => {
+            const isPass = inputPass.getAttribute('type') === 'password';
+            inputPass.setAttribute('type', isPass ? 'text' : 'password');
+            eyePass.className = isPass ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+
+        const btnConfirm = document.getElementById('btn-toggle-confirm-password');
+        const inputConfirm = document.getElementById('reg-confirm-password');
+        const eyeConfirm = document.getElementById('eye-icon-confirm');
+
+        btnConfirm.addEventListener('click', () => {
+            const isPass = inputConfirm.getAttribute('type') === 'password';
+            inputConfirm.setAttribute('type', isPass ? 'text' : 'password');
+            eyeConfirm.className = isPass ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    }
+
+    function initRegisterHandler() {
+        const form = document.getElementById('register-form');
+        const submitBtn = document.getElementById('btn-submit-register');
+        const spinner = document.getElementById('reg-spinner');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlert();
+
+            const fullName = document.getElementById('reg-fullname').value.trim();
+            const organization = document.getElementById('reg-org').value.trim();
+            const donorType = document.getElementById('reg-donor-type').value;
+            const city = document.getElementById('reg-city').value.trim();
+            const pickupAddress = document.getElementById('reg-address').value.trim();
+            const locationId = document.getElementById('reg-location').value;
+            const email = document.getElementById('reg-email').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+
+            let valid = true;
+
+            if (!fullName) {
+                document.getElementById('reg-fullname').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('reg-fullname').classList.remove('is-invalid');
+            }
+
+            if (!donorType) {
+                document.getElementById('reg-donor-type').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('reg-donor-type').classList.remove('is-invalid');
+            }
+
+            if (!city) {
+                document.getElementById('reg-city').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('reg-city').classList.remove('is-invalid');
+            }
+
+            if (!pickupAddress) {
+                document.getElementById('reg-address').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('reg-address').classList.remove('is-invalid');
+            }
+
+            if (!locationId) {
+                document.getElementById('reg-location').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('reg-location').classList.remove('is-invalid');
+            }
+
+            if (!email || !email.includes('@')) {
+                document.getElementById('reg-email').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('reg-email').classList.remove('is-invalid');
+            }
+
+            if (!phone) {
+                document.getElementById('reg-phone').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('reg-phone').classList.remove('is-invalid');
+            }
+
+            if (!password || password.length < 6) {
+                document.getElementById('reg-password').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('reg-password').classList.remove('is-invalid');
+            }
+
+            if (!confirmPassword || password !== confirmPassword) {
+                document.getElementById('reg-confirm-password').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('reg-confirm-password').classList.remove('is-invalid');
+            }
+
+            if (!valid) return;
+
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName,
+                        organization: organization || fullName,
+                        donorType,
+                        city,
+                        pickupAddress,
+                        locationId,
+                        email,
+                        phone,
+                        password,
+                        confirmPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showSuccessAlert('Registration successful! Redirecting to login page...');
+                    setTimeout(() => {
+                        window.location.href = `/login.html?registered=true&email=${encodeURIComponent(email)}`;
+                    }, 1200);
+                } else {
+                    showErrorAlert(data.message || 'Registration failed. Please review your input.');
+                    submitBtn.disabled = false;
+                    spinner.classList.add('d-none');
+                }
+            } catch (err) {
+                showErrorAlert('Unable to reach server. Please ensure backend is running.');
+                submitBtn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        });
+    }
+
+    function showErrorAlert(msg) {
+        const container = document.getElementById('register-alert-container');
+        container.innerHTML = `
+            <div class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3 fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                <div class="flex-grow-1">${escapeHtml(msg)}</div>
+                <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+    }
+
+    function showSuccessAlert(msg) {
+        const container = document.getElementById('register-alert-container');
+        container.innerHTML = `
+            <div class="alert alert-success py-2 px-3 small d-flex align-items-center gap-2 mb-3 fade show" role="alert">
+                <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+                <div class="flex-grow-1">${escapeHtml(msg)}</div>
+            </div>
+        `;
+    }
+
+    function clearAlert() {
+        document.getElementById('register-alert-container').innerHTML = '';
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.innerText = text;
+        return div.innerHTML;
+    }
+</script>
+
+</body>
+</html>

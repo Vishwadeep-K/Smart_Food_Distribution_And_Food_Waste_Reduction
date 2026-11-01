@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Portal - ANNAM Smart Food Distribution</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<!-- ======================================================================
+     DONOR TOPBAR
+     ====================================================================== -->
+<header class="donor-topbar d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-2">
+            <span class="auth-brand-badge mb-0" style="width: 40px; height: 40px; font-size: 1.25rem;">
+                <i class="bi bi-box2-heart"></i>
+            </span>
+            <div>
+                <h6 class="mb-0 fw-bold text-dark" style="letter-spacing: -0.01em;">ANNAM</h6>
+                <small class="text-success fw-semibold" style="font-size: 0.75rem;">DONOR PORTAL</small>
+            </div>
+        </div>
+
+        <div class="d-none d-md-flex align-items-center gap-2 ms-4">
+            <button class="donor-nav-pill active" id="pill-my-donations" onclick="switchDonorTab('donations')">
+                <i class="bi bi-list-task"></i> My Donations
+            </button>
+            <button class="donor-nav-pill" id="pill-submit-donation" onclick="switchDonorTab('submit')">
+                <i class="bi bi-plus-circle"></i> Submit Food Donation
+            </button>
+            <button class="donor-nav-pill" id="pill-my-reports" onclick="switchDonorTab('reports')">
+                <i class="bi bi-file-earmark-bar-graph"></i> My Reports
+            </button>
+            <button class="donor-nav-pill" id="pill-my-profile" onclick="switchDonorTab('profile')">
+                <i class="bi bi-person-badge"></i> My Profile
+            </button>
+        </div>
+    </div>
+
+    <!-- User Profile Badge & Logout -->
+    <div class="d-flex align-items-center gap-3">
+        <div class="d-none d-sm-block text-end">
+            <div class="fw-bold small text-dark" id="donor-topbar-name">Loading...</div>
+            <div class="text-muted" style="font-size: 0.72rem;" id="donor-topbar-email">donor@annam.org</div>
+        </div>
+
+        <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" onclick="handleDonorLogout()">
+            <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Logout</span>
+        </button>
+    </div>
+</header>
+
+<!-- Mobile Navigation Bar -->
+<div class="d-md-none bg-white border-bottom p-2 text-center">
+    <div class="btn-group btn-group-sm w-100">
+        <button class="btn btn-outline-success active" id="mob-pill-donations" onclick="switchDonorTab('donations')">
+            <i class="bi bi-list-task"></i> Donations
+        </button>
+        <button class="btn btn-outline-success" id="mob-pill-submit" onclick="switchDonorTab('submit')">
+            <i class="bi bi-plus-circle"></i> Submit
+        </button>
+        <button class="btn btn-outline-success" id="mob-pill-reports" onclick="switchDonorTab('reports')">
+            <i class="bi bi-bar-chart"></i> Reports
+        </button>
+        <button class="btn btn-outline-success" id="mob-pill-profile" onclick="switchDonorTab('profile')">
+            <i class="bi bi-person-badge"></i> Profile
+        </button>
+    </div>
+</div>
+
+<!-- ======================================================================
+     MAIN CONTAINER
+     ====================================================================== -->
+<main class="container-xl py-4">
+    <!-- Alert Banner Container -->
+    <div id="donor-alert-container"></div>
+
+    <!-- Summary Metrics Cards (5 Key Cards required by prompt) -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Total Donations Submitted -->
+        <div class="col-6 col-lg">
+            <div class="metric-card p-3 bg-white border rounded shadow-sm">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="metric-icon-box bg-success-subtle text-success p-2 rounded">
+                        <i class="bi bi-box-seam fs-5"></i>
+                    </div>
+                    <div class="metric-label small text-muted fw-bold">Donations Submitted</div>
+                </div>
+                <div class="metric-value fs-4 fw-bold text-dark" id="stat-total-batches">0</div>
+                <div class="text-muted" style="font-size: 0.72rem;">Total surplus batches</div>
+            </div>
+        </div>
+
+        <!-- 2. Total Food Portions Donated -->
+        <div class="col-6 col-lg">
+            <div class="metric-card p-3 bg-white border rounded shadow-sm">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="metric-icon-box bg-primary-subtle text-primary p-2 rounded">
+                        <i class="bi bi-pie-chart-fill fs-5"></i>
+                    </div>
+                    <div class="metric-label small text-muted fw-bold">Portions Donated</div>
+                </div>
+                <div class="metric-value fs-4 fw-bold text-primary" id="stat-total-portions">0</div>
+                <div class="text-muted" style="font-size: 0.72rem;">Meals registered</div>
+            </div>
+        </div>
+
+        <!-- 3. Donations Awaiting Approval -->
+        <div class="col-6 col-lg">
+            <div class="metric-card p-3 bg-white border rounded shadow-sm">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="metric-icon-box bg-warning-subtle text-warning p-2 rounded">
+                        <i class="bi bi-hourglass-split fs-5"></i>
+                    </div>
+                    <div class="metric-label small text-muted fw-bold">Awaiting Approval</div>
+                </div>
+                <div class="metric-value fs-4 fw-bold text-warning" id="stat-pending-batches">0</div>
+                <div class="text-muted" style="font-size: 0.72rem;">Admin review queue</div>
+            </div>
+        </div>
+
+        <!-- 4. Donations Successfully Delivered -->
+        <div class="col-6 col-lg">
+            <div class="metric-card p-3 bg-white border rounded shadow-sm">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="metric-icon-box bg-info-subtle text-info p-2 rounded">
+                        <i class="bi bi-check2-circle fs-5"></i>
+                    </div>
+                    <div class="metric-label small text-muted fw-bold">Delivered Batches</div>
+                </div>
+                <div class="metric-value fs-4 fw-bold text-info" id="stat-delivered-batches">0</div>
+                <div class="text-muted" style="font-size: 0.72rem;"><span id="stat-delivered-portions">0</span> portions fed</div>
+            </div>
+        </div>
+
+        <!-- 5. Donations Expired or Rejected -->
+        <div class="col-6 col-lg">
+            <div class="metric-card p-3 bg-white border rounded shadow-sm">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="metric-icon-box bg-danger-subtle text-danger p-2 rounded">
+                        <i class="bi bi-exclamation-octagon fs-5"></i>
+                    </div>
+                    <div class="metric-label small text-muted fw-bold">Expired / Rejected</div>
+                </div>
+                <div class="metric-value fs-4 fw-bold text-danger" id="stat-expired-rejected-batches">0</div>
+                <div class="text-muted" style="font-size: 0.72rem;">Past deadline or rejected</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         VIEW 1: MY DONATIONS
+         ================================================================== -->
+    <section id="tab-view-donations" class="donor-view-section">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                    <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-heart-pulse-fill text-success me-2"></i>My Food Donations</h5>
+                    <small class="text-muted">Track status, admin approvals, partial allocations, vehicle assignments, and delivery completions</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="loadDonorDonations()" title="Refresh donations">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <button class="btn btn-sm btn-primary-green" onclick="switchDonorTab('submit')">
+                        <i class="bi bi-plus-lg"></i> New Donation
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters: Search, Status, Category, Date -->
+            <div class="p-3 bg-light border-bottom">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" id="search-donations" placeholder="Search batch ID, food name..." oninput="filterDonorDonations()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm" id="filter-delivery-status" onchange="filterDonorDonations()">
+                            <option value="ALL">All Statuses (Pending, Approved, Reserved...)</option>
+                            <option value="Pending Approval">Pending Approval</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Partially Allocated">Partially Allocated</option>
+                            <option value="Reserved">Reserved</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select form-select-sm" id="filter-category" onchange="filterDonorDonations()">
+                            <option value="ALL">All Categories</option>
+                            <option value="MEALS">Meals</option>
+                            <option value="BIRYANI">Biryani</option>
+                            <option value="RICE">Rice</option>
+                            <option value="CHAPATI">Chapati</option>
+                            <option value="BREAD">Bread</option>
+                            <option value="PACKED_FOOD">Packed Food</option>
+                            <option value="FRUITS">Fruits</option>
+                            <option value="VEGETABLES">Vegetables</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control form-control-sm" id="filter-submission-date" onchange="filterDonorDonations()" title="Filter by Submission Date">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted">
+                        <tr>
+                            <th>Batch ID</th>
+                            <th>Food Item & Category</th>
+                            <th>Portions Status</th>
+                            <th>Use-By Time</th>
+                            <th>Submitted On</th>
+                            <th>Approval</th>
+                            <th>Current Status</th>
+                            <th class="text-end">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="donor-donations-tbody" class="small">
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <span class="spinner-border spinner-border-sm me-2"></span> Loading your donation records...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================================================================
+         VIEW 2: SUBMIT FOOD DONATION
+         ================================================================== -->
+    <section id="tab-view-submit" class="donor-view-section d-none">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-box2-heart text-success me-2"></i>Submit Surplus Food Donation</h5>
+                        <small class="text-muted">Enter details of available surplus portions for admin review and smart matching</small>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form id="form-submit-donation" novalidate>
+                            <div class="row g-3">
+                                <!-- Food Name -->
+                                <div class="col-md-7">
+                                    <label class="form-label small fw-bold">Food Name / Description <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="don-food-name" placeholder="e.g. Sambar Rice & Poriyal, Veg Pulao" required>
+                                    <div class="invalid-feedback">Food name/item description is required.</div>
+                                </div>
+
+                                <!-- Food Category -->
+                                <div class="col-md-5">
+                                    <label class="form-label small fw-bold">Food Category <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="don-category" required>
+                                        <option value="" disabled selected>-- Select Category --</option>
+                                        <option value="MEALS">MEALS (Cooked Full Meals)</option>
+                                        <option value="BIRYANI">BIRYANI (Veg/Paneer/Chicken Biryani)</option>
+                                        <option value="RICE">RICE (Steamed/Flavoured Rice)</option>
+                                        <option value="CHAPATI">CHAPATI (Roti / Flatbread)</option>
+                                        <option value="BREAD">BREAD (Bakery / Loaves / Buns)</option>
+                                        <option value="PACKED_FOOD">PACKED_FOOD (Hygienic Sealed Packs)</option>
+                                        <option value="FRUITS">FRUITS (Fresh Seasonal Produce)</option>
+                                        <option value="VEGETABLES">VEGETABLES (Fresh Farm Veggies)</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a food category.</div>
+                                </div>
+
+                                <!-- Quantity / Portions -->
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">Available Portions <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="don-portions" placeholder="e.g. 50" min="1" max="2000" required>
+                                    <div class="invalid-feedback">Portions must be greater than 0.</div>
+                                </div>
+
+                                <!-- Preparation Time -->
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">Preparation Time (HH:mm)</label>
+                                    <input type="time" class="form-control" id="don-prep-time">
+                                    <small class="text-muted" style="font-size: 0.72rem;">When cooked/packed</small>
+                                </div>
+
+                                <!-- Use-by Time -->
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">Declared Use-By Time <span class="text-danger">*</span></label>
+                                    <input type="time" class="form-control" id="don-use-by" required>
+                                    <div class="invalid-feedback">Use-by time is strictly required for safety.</div>
+                                </div>
+
+                                <!-- Pickup Location -->
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold">Pickup Location Zone <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="don-pickup-loc" required>
+                                        <option value="" disabled selected>Loading locations...</option>
+                                    </select>
+                                    <div class="invalid-feedback">Pickup location is required.</div>
+                                </div>
+
+                                <!-- Additional Notes -->
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold">Packaging & Handover Notes</label>
+                                    <textarea class="form-control" id="don-notes" rows="3" placeholder="e.g. Packed in sealed thermal containers. Ready for immediate pickup from back gate loading bay."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-light border small text-muted mt-3 py-2 px-3">
+                                <i class="bi bi-info-circle-fill text-success me-1"></i>
+                                Submissions are initially created with <strong>Pending Approval</strong> status. Once approved by an Administrator, the batch is automatically queued for smart matching.
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2 mt-3">
+                                <button type="button" class="btn btn-outline-secondary" onclick="switchDonorTab('donations')">Cancel</button>
+                                <button type="submit" class="btn btn-primary-green px-4" id="btn-submit-donation-action">
+                                    <i class="bi bi-send-check"></i> Submit Food Donation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================================================================
+         VIEW 3: MY REPORTS (NEW)
+         ================================================================== -->
+    <section id="tab-view-reports" class="donor-view-section d-none">
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                    <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-file-earmark-bar-graph text-success me-2"></i>My Donation Contribution Reports</h5>
+                    <small class="text-muted">Generate verified statistical reports and download official contribution records</small>
+                </div>
+
+                <!-- Export Action Buttons -->
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-sm btn-outline-success d-flex align-items-center gap-1" onclick="exportDonorReport('csv')">
+                        <i class="bi bi-filetype-csv"></i> Download CSV
+                    </button>
+                    <button class="btn btn-sm btn-primary-green d-flex align-items-center gap-1" onclick="exportDonorReport('pdf')">
+                        <i class="bi bi-file-earmark-pdf"></i> Download PDF Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- Date Range Controls -->
+            <div class="card-body bg-light border-bottom p-3">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-dark">Pre-set Period</label>
+                        <select class="form-select form-select-sm" id="report-period-preset" onchange="handlePeriodPresetChange()">
+                            <option value="ALL">All Time</option>
+                            <option value="THIS_WEEK">This Week</option>
+                            <option value="THIS_MONTH">This Month</option>
+                            <option value="LAST_3_MONTHS">Last 3 Months</option>
+                            <option value="CUSTOM">Custom Date Range</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-dark">Start Date</label>
+                        <input type="date" class="form-control form-control-sm" id="report-start-date">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-dark">End Date</label>
+                        <input type="date" class="form-control form-control-sm" id="report-end-date">
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-sm btn-success w-100 d-flex align-items-center justify-content-center gap-1" onclick="loadDonorReport()">
+                            <i class="bi bi-arrow-repeat"></i> Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4" id="report-content-container">
+                <!-- Report Header Badge -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                    <div>
+                        <h4 class="fw-bold text-dark mb-1" id="report-heading-title">ANNAM Donor Contribution Report</h4>
+                        <div class="text-muted small" id="report-donor-metadata">Donor: Loading...</div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2" id="report-period-label">Period: All Time</span>
+                        <div class="text-muted mt-1" style="font-size: 0.72rem;" id="report-timestamp-label">Generated: --</div>
+                    </div>
+                </div>
+
+                <!-- Report KPI Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-2 col-6">
+                        <div class="p-3 border rounded bg-white text-center">
+                            <small class="text-muted fw-bold d-block">TOTAL DONATIONS</small>
+                            <h3 class="fw-bold text-dark mb-0 mt-1" id="rep-stat-total-donations">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="p-3 border rounded bg-white text-center">
+                            <small class="text-muted fw-bold d-block">PORTIONS DONATED</small>
+                            <h3 class="fw-bold text-primary mb-0 mt-1" id="rep-stat-total-portions">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 border rounded bg-white text-center">
+                            <small class="text-muted fw-bold d-block">DELIVERED PORTIONS</small>
+                            <h3 class="fw-bold text-success mb-0 mt-1" id="rep-stat-delivered-portions">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="p-3 border rounded bg-white text-center">
+                            <small class="text-muted fw-bold d-block">EXPIRED / REJECTED</small>
+                            <h3 class="fw-bold text-danger mb-0 mt-1" id="rep-stat-expired-rejected">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-12">
+                        <div class="p-3 border rounded bg-success-subtle border-success text-center">
+                            <small class="text-success fw-bold d-block">DELIVERY SUCCESS RATE</small>
+                            <h3 class="fw-bold text-success mb-0 mt-1" id="rep-stat-success-rate">0.0%</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown & Status Summary -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-7">
+                        <div class="border rounded p-3 bg-white h-100">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-pie-chart text-success me-2"></i>Breakdown by Food Category</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover align-middle mb-0">
+                                    <thead class="table-light small">
+                                        <tr>
+                                            <th>Category</th>
+                                            <th class="text-center">Batches</th>
+                                            <th class="text-center">Total Portions</th>
+                                            <th class="text-end">Share (%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-category-tbody" class="small">
+                                        <tr><td colspan="4" class="text-center text-muted py-3">No donations in selected period.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="border rounded p-3 bg-white h-100">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart-steps text-primary me-2"></i>Status Summary</h6>
+                            <ul class="list-group list-group-flush small" id="report-status-summary-list">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-check2-circle text-success me-2"></i>Successfully Delivered</span>
+                                    <span class="badge bg-success rounded-pill" id="rep-status-delivered">0</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-clock-history text-warning me-2"></i>Pending Approval</span>
+                                    <span class="badge bg-warning text-dark rounded-pill" id="rep-status-pending">0</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-truck text-primary me-2"></i>Reserved / In-Transit</span>
+                                    <span class="badge bg-primary rounded-pill" id="rep-status-reserved">0</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-x-octagon text-danger me-2"></i>Rejected by Admin</span>
+                                    <span class="badge bg-danger rounded-pill" id="rep-status-rejected">0</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-hourglass-bottom text-secondary me-2"></i>Expired Batches</span>
+                                    <span class="badge bg-secondary rounded-pill" id="rep-status-expired">0</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Donation History in Period Table -->
+                <div class="border rounded p-3 bg-white">
+                    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-journal-text text-success me-2"></i>Detailed Donation Log (Period)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Batch ID</th>
+                                    <th>Food Item</th>
+                                    <th>Category</th>
+                                    <th>Portions</th>
+                                    <th>Submission Date</th>
+                                    <th>Use-By</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-items-tbody" class="small">
+                                <tr><td colspan="7" class="text-center text-muted py-3">No donation history in selected period.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================================================================
+         VIEW 4: MY PROFILE
+         ================================================================== -->
+    <section id="tab-view-profile" class="donor-view-section d-none">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-person-circle text-success me-2"></i>My Donor Profile</h5>
+                            <small class="text-muted">Manage your organization's contact, donor category, and dispatch details</small>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" id="profile-donor-id-badge">ID: --</span>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form id="form-update-profile">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-8">
+                                    <label class="form-label small fw-bold">Full Name / Organization</label>
+                                    <input type="text" class="form-control" id="profile-name" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">Donor Type</label>
+                                    <input type="text" class="form-control bg-light" id="profile-donor-type" readonly disabled>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Registered Email Address</label>
+                                    <input type="email" class="form-control bg-light" id="profile-email" readonly disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Primary Contact Phone</label>
+                                    <input type="tel" class="form-control" id="profile-phone" required>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">City / Locality</label>
+                                    <input type="text" class="form-control bg-light" id="profile-city" readonly disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Primary Pickup Zone (Road Network)</label>
+                                    <select class="form-select" id="profile-location" required></select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Pickup Street Address / Dispatch Bay</label>
+                                <input type="text" class="form-control" id="profile-address" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-green w-100 mt-2" id="btn-save-profile">
+                                <i class="bi bi-check-lg"></i> Update Profile Details
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- ======================================================================
+     MODAL: DONATION DETAILS & BREAKDOWN
+     ====================================================================== -->
+<div class="modal fade" id="modal-donation-details" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="modal-detail-title">Food Batch Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="modal-detail-body">
+                <div class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span> Loading details...</div>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Donor Script -->
+<script src="/js/donor.js"></script>
+
+</body>
+</html>

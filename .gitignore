@@ -1,0 +1,69 @@
+# ==============================================================================
+# ANNAM Smart Food Distribution - .gitignore
+# ==============================================================================
+
+# Compiled Class files
+*.class
+/bin/
+
+# Maven build outputs
+/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Bundled Maven distribution tool (use system maven or wrapper)
+/maven/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Log files
+*.log
+logs/
+
+# Secrets, Environment and Private Keys
+.env
+*.env
+*.env.*
+*.key
+*.pem
+*.pfx
+*.id_rsa
+secrets/
+
+# IDE & Editor files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS Generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Crash dumps & temp files
+*.dmp
+*.tmp
+*.temp
+tmp/
+temp/
+

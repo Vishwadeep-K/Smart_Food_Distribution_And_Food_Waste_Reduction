@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annam Admin - Smart Food Distribution & Waste Reduction</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <!-- Custom CSS -->
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="app-container">
+    <!-- ======================================================================
+         SIDEBAR NAVIGATION
+         ====================================================================== -->
+    <nav id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-logo-container">
+                <i class="bi bi-box2-heart brand-icon"></i>
+            </div>
+            <div class="brand-text">
+                <div class="d-flex align-items-center gap-2">
+                    <h4>ANNAM</h4>
+                    <span class="badge-brand-role">ADMIN</span>
+                </div>
+                <small><span class="live-status-indicator"></span>Smart Food Logistics</small>
+            </div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li class="nav-section-title">Core Operations</li>
+            <li>
+                <a class="nav-link-custom active" data-page="dashboard">
+                    <i class="bi bi-speedometer2"></i> Admin Dashboard
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom d-flex justify-content-between align-items-center" data-page="approvals">
+                    <span><i class="bi bi-check2-square"></i> Donation Approvals</span>
+                    <span class="badge bg-warning text-dark rounded-pill" id="sidebar-pending-badge" style="font-size: 0.72rem;">0</span>
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom" data-page="matching">
+                    <i class="bi bi-diagram-3"></i> Smart Matching
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom" data-page="allocations">
+                    <i class="bi bi-truck"></i> Allocations & Deliveries
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom" data-page="routing">
+                    <i class="bi bi-signpost-split"></i> Road Network
+                </a>
+            </li>
+
+            <li class="nav-section-title">Master Data</li>
+            <li>
+                <a class="nav-link-custom" data-page="donors">
+                    <i class="bi bi-building"></i> Donor Management
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom" data-page="batches">
+                    <i class="bi bi-egg-fried"></i> Food Batch Management
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom" data-page="recipients">
+                    <i class="bi bi-people"></i> Recipient Management
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom" data-page="vehicles">
+                    <i class="bi bi-truck-front"></i> Vehicle Management
+                </a>
+            </li>
+
+            <li class="nav-section-title">Audit & System</li>
+            <li>
+                <a class="nav-link-custom" data-page="reports">
+                    <i class="bi bi-graph-up-arrow"></i> Reports & Analytics
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom" data-page="clock">
+                    <i class="bi bi-clock-history"></i> Simulated Clock
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom" data-page="history">
+                    <i class="bi bi-journal-text"></i> Audit Trail
+                </a>
+            </li>
+            <li>
+                <a class="nav-link-custom" data-page="settings">
+                    <i class="bi bi-gear"></i> Settings
+                </a>
+            </li>
+            <li class="mt-2">
+                <a class="nav-link-custom text-danger" onclick="handleAdminLogout()">
+                    <i class="bi bi-box-arrow-right text-danger"></i> Logout
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="system-status-card">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="small fw-bold text-white-50">SYSTEM ENGINE</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle py-0 px-2" style="font-size: 0.65rem;">ONLINE</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 small text-light opacity-90">
+                    <span class="status-live-dot"></span>
+                    <span>MySQL 8.0 &bull; Java 21</span>
+                </div>
+                <div class="text-white-50 mt-1" style="font-size: 0.68rem;">ANNAM Redistribution &copy; 2026</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======================================================================
+         MAIN CONTENT AREA
+         ====================================================================== -->
+    <div id="main-content">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-sm btn-outline-secondary d-md-none" id="sidebar-toggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <h5 class="mb-0 fw-bold text-dark" id="page-title">Admin Dashboard</h5>
+                    <small class="text-muted d-none d-sm-block" style="font-size: 0.72rem;">Central Food Waste Reduction & Redistribution Control</small>
+                </div>
+            </div>
+
+            <!-- Topbar Clock & Quick Actions -->
+            <div class="d-flex align-items-center gap-2 gap-md-3">
+                <div class="simulated-clock-widget">
+                    <span class="status-live-dot me-1"></span>
+                    <i class="bi bi-clock-fill clock-icon"></i>
+                    <div>
+                        <span class="clock-time" id="topbar-clock-display">10:00</span>
+                        <small class="text-muted ms-1 d-none d-sm-inline">Simulated</small>
+                    </div>
+                </div>
+
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-success" onclick="quickAdvanceClock(15)" title="Advance 15 mins">+15m</button>
+                    <button class="btn btn-outline-success" onclick="quickAdvanceClock(30)" title="Advance 30 mins">+30m</button>
+                    <button class="btn btn-outline-success" onclick="quickAdvanceClock(60)" title="Advance 1 hour">+1h</button>
+                </div>
+
+                <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" onclick="triggerExpiryCheck()" title="Run Expiry Check">
+                    <i class="bi bi-hourglass-bottom"></i> <span class="d-none d-md-inline">Expiry Check</span>
+                </button>
+
+                <div class="vr mx-1 d-none d-sm-block"></div>
+
+                <div class="d-none d-lg-flex align-items-center gap-2 user-profile-chip">
+                    <div class="user-avatar-circle">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold small text-dark lh-1" id="admin-user-display">Admin</div>
+                        <small class="text-success fw-semibold" style="font-size: 0.68rem;">SUPER ADMIN</small>
+                    </div>
+                </div>
+
+                <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" onclick="handleAdminLogout()" title="Logout Admin Session">
+                    <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Logout</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Views Container -->
+        <div class="page-container">
+            <div id="alert-container"></div>
+
+            <!-- ================= VIEW 1: ADMIN DASHBOARD ================= -->
+            <div class="page-view" id="view-dashboard">
+                <!-- Operations Quick Jump Banner -->
+                <div class="admin-ops-banner">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="ops-banner-badge">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> Quick Operations
+                        </span>
+                        <span class="small text-dark fw-semibold d-none d-md-inline">
+                            Redistribution Workflow: Review surplus donations and run Dijkstra matching
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-outline-success bg-white d-flex align-items-center gap-1 shadow-sm" onclick="document.querySelector('[data-page=\'approvals\']').click()">
+                            <i class="bi bi-check2-square"></i> Review Approvals Queue
+                        </button>
+                        <button class="btn btn-sm btn-primary-green d-flex align-items-center gap-1 shadow-sm" onclick="document.querySelector('[data-page=\'matching\']').click()">
+                            <i class="bi bi-diagram-3"></i> Launch Smart Matcher
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 1: Key Operational KPI Cards -->
+                <div class="row g-3 mb-4">
+                    <!-- Total Registered Donors -->
+                    <div class="col-xl-3 col-md-6 metric-card-animated">
+                        <div class="metric-card metric-card-emerald p-3 bg-white border rounded-3 shadow-sm">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="small text-muted fw-bold">REGISTERED DONORS</span>
+                                <div class="metric-icon-box bg-success-subtle text-success p-2 rounded-3">
+                                    <i class="bi bi-building fs-5"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold text-dark mb-1" id="stat-donors">0</h3>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <small class="text-muted">Verified food contributors</small>
+                                <span class="badge bg-success-subtle text-success py-1 px-2" style="font-size: 0.68rem;">Active Network</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Food Batches -->
+                    <div class="col-xl-3 col-md-6 metric-card-animated">
+                        <div class="metric-card metric-card-blue p-3 bg-white border rounded-3 shadow-sm">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="small text-muted fw-bold">TOTAL FOOD BATCHES</span>
+                                <div class="metric-icon-box bg-primary-subtle text-primary p-2 rounded-3">
+                                    <i class="bi bi-box-seam fs-5"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold text-dark mb-1" id="stat-total-batches">0</h3>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <small class="text-muted"><span id="stat-active-batches">0</span> active batches</small>
+                                <span class="badge bg-primary-subtle text-primary py-1 px-2" style="font-size: 0.68rem;">Surplus Lots</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Donation Approvals -->
+                    <div class="col-xl-3 col-md-6 metric-card-animated">
+                        <div class="metric-card metric-card-amber p-3 bg-white border rounded-3 shadow-sm">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="small text-muted fw-bold">PENDING APPROVALS</span>
+                                <div class="metric-icon-box bg-warning-subtle text-warning p-2 rounded-3">
+                                    <i class="bi bi-hourglass-split fs-5"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold text-warning mb-1" id="stat-pending-approvals">0</h3>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <small class="text-muted">Awaiting verification</small>
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle py-1 px-2" style="font-size: 0.68rem;">Review Needed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expiring Batches Alert -->
+                    <div class="col-xl-3 col-md-6 metric-card-animated">
+                        <div class="metric-card metric-card-rose p-3 bg-white border rounded-3 shadow-sm border-danger-subtle">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="small text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i>EXPIRING SOON</span>
+                                <div class="metric-icon-box bg-danger-subtle text-danger p-2 rounded-3">
+                                    <i class="bi bi-alarm fs-5"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold text-danger mb-1" id="stat-expiring-batches">0</h3>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <small class="text-muted">&le; 60m to deadline</small>
+                                <span class="badge bg-danger-subtle text-danger py-1 px-2" style="font-size: 0.68rem;">High Priority</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Secondary Metrics -->
+                <div class="row g-3 mb-4">
+                    <!-- Available Portions -->
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="secondary-metric-card">
+                            <div class="small text-muted fw-bold mb-1">AVAILABLE</div>
+                            <h3 class="text-success fw-bold mb-0" id="stat-avail-portions">0</h3>
+                            <small class="text-muted" style="font-size: 0.72rem;">Portions to Match</small>
+                        </div>
+                    </div>
+
+                    <!-- Reserved Portions -->
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="secondary-metric-card">
+                            <div class="small text-muted fw-bold mb-1">RESERVED</div>
+                            <h3 class="text-primary fw-bold mb-0" id="stat-reserved-portions">0</h3>
+                            <small class="text-muted" style="font-size: 0.72rem;">Transit Portions</small>
+                        </div>
+                    </div>
+
+                    <!-- Delivered Portions -->
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="secondary-metric-card">
+                            <div class="small text-muted fw-bold mb-1">DELIVERED</div>
+                            <h3 class="text-info fw-bold mb-0" id="stat-delivered-portions">0</h3>
+                            <small class="text-muted" style="font-size: 0.72rem;">Rescued Meals</small>
+                        </div>
+                    </div>
+
+                    <!-- Active Allocations -->
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="secondary-metric-card">
+                            <div class="small text-muted fw-bold mb-1">ALLOCATIONS</div>
+                            <h3 class="text-dark fw-bold mb-0" id="stat-active-allocations">0</h3>
+                            <small class="text-muted" style="font-size: 0.72rem;">Active Routes</small>
+                        </div>
+                    </div>
+
+                    <!-- Expired Batches -->
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="secondary-metric-card">
+                            <div class="small text-muted fw-bold mb-1">EXPIRED</div>
+                            <h3 class="text-secondary fw-bold mb-0" id="stat-expired-batches">0</h3>
+                            <small class="text-muted" style="font-size: 0.72rem;">Past Use-By</small>
+                        </div>
+                    </div>
+
+                    <!-- Food Waste Avoided -->
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="secondary-metric-card bg-success-subtle border-success">
+                            <div class="small text-success fw-bold mb-1">SAVED FOOD</div>
+                            <h3 class="text-success fw-bold mb-0" id="stat-waste-avoided">0</h3>
+                            <small class="text-success fw-semibold" style="font-size: 0.72rem;">Portions Rescued</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row g-3 mb-4">
+                    <div class="col-lg-6">
+                        <div class="card card-custom h-100">
+                            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                <h5><i class="bi bi-pie-chart text-success me-2"></i>Portions by Food Category</h5>
+                                <span class="badge bg-light text-dark border small">Donut Distribution</span>
+                            </div>
+                            <div class="p-3">
+                                <canvas id="chart-category-portions" height="240"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card card-custom h-100">
+                            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                <h5><i class="bi bi-bar-chart text-primary me-2"></i>Available vs Distributed Portions</h5>
+                                <span class="badge bg-light text-dark border small">Portion Lifecycle</span>
+                            </div>
+                            <div class="p-3">
+                                <canvas id="chart-portion-distribution" height="240"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 2: DONATION APPROVALS (NEW DEDICATED VIEW) ================= -->
+            <div class="page-view d-none" id="view-approvals">
+                <div class="alert alert-light border d-flex align-items-center justify-content-between py-2 px-3 mb-3 rounded-3 shadow-xs">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-shield-check"></i> Quality Verification Queue</span>
+                        <span class="text-muted small">Batches verified here enter the <strong>Earliest-Use-By-First Min-Heap (PriorityQueue)</strong> for time-critical distribution.</span>
+                    </div>
+                    <span class="badge bg-light text-muted border small">Strict Expiry Invalidation</span>
+                </div>
+
+                <div class="card card-custom mb-4">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><i class="bi bi-check2-square text-success me-2"></i>Pending Donation Approvals</h5>
+                            <small class="text-muted">Review surplus food submissions from donors. Approved batches enter the live dispatch queue.</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-green" onclick="loadApprovalsView()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh Queue
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Batch ID</th>
+                                    <th>Donor Details</th>
+                                    <th>Food Item & Category</th>
+                                    <th class="text-center">Portions</th>
+                                    <th>Preparation / Use-By</th>
+                                    <th>Pickup Location</th>
+                                    <th>Submitted On</th>
+                                    <th class="text-end">Verification Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvals-table-body">
+                                <tr><td colspan="8" class="text-center py-4 text-muted">Loading pending approvals...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 3: SMART MATCHING ================= -->
+            <div class="page-view d-none" id="view-matching">
+                <div class="card card-custom mb-4">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><i class="bi bi-funnel text-success me-2"></i>Time-Sensitive Matching Engine</h5>
+                            <small class="text-muted">PriorityQueue (Min-Heap) + Dijkstra Shortest Path + Category Compatibility</small>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="bi bi-cpu"></i> Algorithmic Dispatch
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">
+                            Matches surplus food batches ordered by <strong>Earliest Use-By Time First (PriorityQueue)</strong>, 
+                            validates category compatibility (Polymorphism), demand limits, vehicle capacity, and evaluates 
+                            <strong>Dijkstra Shortest Path travel time + fixed handover allowance strictly before use-by deadline</strong>.
+                        </p>
+                        <div class="row g-3 align-items-end p-3 bg-light rounded-3 border">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-dark"><i class="bi bi-building me-1 text-primary"></i>Select Recipient Organization *</label>
+                                <select class="form-select" id="match-recipient-select">
+                                    <option value="">-- Choose Recipient --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold small text-dark"><i class="bi bi-tag me-1 text-success"></i>Filter Category (Optional)</label>
+                                <select class="form-select" id="match-category-select">
+                                    <option value="ALL">All Categories</option>
+                                    <option value="MEALS">Meals</option>
+                                    <option value="BIRYANI">Biryani</option>
+                                    <option value="RICE">Rice</option>
+                                    <option value="CHAPATI">Chapati</option>
+                                    <option value="BREAD">Bread</option>
+                                    <option value="FRUITS">Fruits</option>
+                                    <option value="VEGETABLES">Vegetables</option>
+                                    <option value="PACKED_FOOD">Packed Food</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold small text-dark"><i class="bi bi-truck me-1 text-info"></i>Preferred Vehicle (Optional)</label>
+                                <select class="form-select" id="match-vehicle-select">
+                                    <option value="">Auto-Assign Best Vehicle</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-primary-green w-100" onclick="runMatchingEvaluation()">
+                                    <i class="bi bi-play-circle"></i> Evaluate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-custom">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <h5><i class="bi bi-list-check text-success me-2"></i>Matching Candidates & Decision Log</h5>
+                        <span class="badge bg-secondary-subtle text-dark border px-3 py-1" id="match-candidate-count">0 candidates</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0" id="matching-table">
+                            <thead>
+                                <tr>
+                                    <th>Batch ID</th>
+                                    <th>Category</th>
+                                    <th>Donor / Pickup</th>
+                                    <th>Available</th>
+                                    <th>Alloc Qty</th>
+                                    <th>Vehicle</th>
+                                    <th>Route (Dijkstra)</th>
+                                    <th>Travel Time</th>
+                                    <th>Expected Done</th>
+                                    <th>Use-By</th>
+                                    <th>Match Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matching-table-body">
+                                <tr>
+                                    <td colspan="12" class="text-center text-muted py-4">
+                                        Select a recipient above and click "Evaluate" to run matching rules.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 4: ALLOCATIONS & DELIVERIES ================= -->
+            <div class="page-view d-none" id="view-allocations">
+                <div class="card card-custom mb-4">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><i class="bi bi-truck text-success me-2"></i>Allocations & Delivery Confirmations</h5>
+                            <small class="text-muted">Track active food transfers, route execution, and record physical handover.</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-green" onclick="loadAllocationsView()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Allocation ID</th>
+                                    <th>Batch</th>
+                                    <th>Recipient</th>
+                                    <th>Vehicle</th>
+                                    <th>Quantity</th>
+                                    <th>Shortest Route</th>
+                                    <th>Est Completion</th>
+                                    <th>Deadline</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="active-allocations-table-body">
+                                <tr>
+                                    <td colspan="10" class="text-center text-muted py-3">Loading allocations...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 5: ROAD NETWORK ================= -->
+            <div class="page-view d-none" id="view-routing">
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-5">
+                        <div class="card card-custom h-100">
+                            <div class="card-header-custom">
+                                <h5><i class="bi bi-calculator text-success me-2"></i>Dijkstra Shortest Path Calculator</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Computes the provably optimal travel time across the weighted road graph using Dijkstra's Min-Heap algorithm.
+                                </p>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark"><i class="bi bi-geo-alt text-danger me-1"></i>Source Location (Pickup)</label>
+                                    <select class="form-select" id="route-source-select"></select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark"><i class="bi bi-flag text-primary me-1"></i>Destination Location (Recipient)</label>
+                                    <select class="form-select" id="route-dest-select"></select>
+                                </div>
+                                <button class="btn btn-primary-green w-100 py-2" onclick="calculateRouteDijkstra()">
+                                    <i class="bi bi-search me-1"></i> Compute Shortest Travel Time
+                                </button>
+
+                                <div class="mt-4 route-calc-box d-none" id="route-result-box">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="fw-bold text-success mb-0"><i class="bi bi-check-circle-fill me-1"></i>Dijkstra Route Solution</h6>
+                                        <span class="badge bg-success fs-6" id="route-time-badge">0 mins</span>
+                                    </div>
+                                    <div class="small fw-bold text-muted mb-1">Calculated Path:</div>
+                                    <div class="p-2 bg-light rounded border my-2 font-monospace small" id="route-path-text">--</div>
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="bi bi-info-circle me-1"></i>Delivery Criterion: <code>Pickup (T) + Travel Time + Handover (10m) &lt; Use-By Deadline</code>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="card card-custom h-100">
+                            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                <h5><i class="bi bi-diagram-2 text-success me-2"></i>Road Network Graph (Adjacency List)</h5>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1" id="road-count-badge">16 Roads</span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive" style="max-height: 480px;">
+                                    <table class="table table-custom table-hover table-sm mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Road ID</th>
+                                                <th>Source Location</th>
+                                                <th>Destination Location</th>
+                                                <th>Travel Time</th>
+                                                <th>Direction</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="roads-table-body">
+                                            <tr><td colspan="5" class="text-center py-3">Loading roads...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 6: DONOR MANAGEMENT ================= -->
+            <div class="page-view d-none" id="view-donors">
+                <div class="card card-custom">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><i class="bi bi-building text-success me-2"></i>Donor Management</h5>
+                            <small class="text-muted">Registered restaurants, banquets, institutions, and community donors</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary-green" data-bs-toggle="modal" data-bs-target="#modal-add-donor">
+                            <i class="bi bi-plus-circle me-1"></i> Add Donor
+                        </button>
+                    </div>
+
+                    <!-- Filter bar for donors -->
+                    <div class="filter-toolbar">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-6">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control border-start-0" id="donor-search-input" placeholder="Search donors by name, organization, city, or ID..." oninput="filterDonors()">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" id="donor-filter-type" onchange="filterDonors()">
+                                    <option value="ALL">All Donor Types</option>
+                                    <option value="Individual">Individual</option>
+                                    <option value="Restaurant">Restaurant</option>
+                                    <option value="Hotel">Hotel / Banquet</option>
+                                    <option value="Institution">Institution</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <span class="badge bg-secondary-subtle text-dark border px-3 py-2" id="donor-count-badge">0 Donors</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Donor ID</th>
+                                    <th>Name</th>
+                                    <th>Organization</th>
+                                    <th>Donor Type</th>
+                                    <th>City</th>
+                                    <th>Contact</th>
+                                    <th>Pickup Zone</th>
+                                    <th>Batches Provided</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="donors-table-body">
+                                <tr><td colspan="9" class="text-center py-3">Loading donors...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 7: FOOD BATCH MANAGEMENT ================= -->
+            <div class="page-view d-none" id="view-batches">
+                <div class="card card-custom">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><i class="bi bi-egg-fried text-success me-2"></i>Food Batch Management</h5>
+                            <small class="text-muted">Master catalogue of registered surplus food donations</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-green" onclick="loadBatchesView(true)" title="View Earliest Use-By First">
+                                <i class="bi bi-sort-numeric-down me-1"></i> PriorityQueue Order
+                            </button>
+                            <button class="btn btn-sm btn-primary-green" data-bs-toggle="modal" data-bs-target="#modal-add-batch">
+                                <i class="bi bi-plus-circle me-1"></i> Add Batch
+                            </button>
+                        </div>
+                    </div>
+                    <div class="filter-toolbar">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" id="batch-filter-category" onchange="filterBatches()">
+                                    <option value="ALL">All Categories</option>
+                                    <option value="MEALS">Meals</option>
+                                    <option value="BIRYANI">Biryani</option>
+                                    <option value="RICE">Rice</option>
+                                    <option value="CHAPATI">Chapati</option>
+                                    <option value="BREAD">Bread</option>
+                                    <option value="FRUITS">Fruits</option>
+                                    <option value="VEGETABLES">Vegetables</option>
+                                    <option value="PACKED_FOOD">Packed Food</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" id="batch-filter-approval" onchange="filterBatches()">
+                                    <option value="ALL">All Approval Statuses</option>
+                                    <option value="APPROVED">Approved Only</option>
+                                    <option value="NOT_APPROVED">Unapproved Only</option>
+                                    <option value="REJECTED">Rejected Only</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" id="batch-filter-expiry" onchange="filterBatches()">
+                                    <option value="ALL">All Expiry States</option>
+                                    <option value="ACTIVE">Active (Unexpired)</option>
+                                    <option value="EXPIRED">Expired Only</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control border-start-0" id="batch-search-input" placeholder="Search batch or donor..." onkeyup="filterBatches()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Batch ID</th>
+                                    <th>Category</th>
+                                    <th>Donor</th>
+                                    <th>Portions (Avail / Res / Del)</th>
+                                    <th>Use-By Time</th>
+                                    <th>Pickup Location</th>
+                                    <th>Approval</th>
+                                    <th>Expiry</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batches-table-body">
+                                <tr><td colspan="9" class="text-center py-3">Loading food batches...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 8: RECIPIENT MANAGEMENT ================= -->
+            <div class="page-view d-none" id="view-recipients">
+                <div class="card card-custom">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><i class="bi bi-people text-success me-2"></i>Beneficiary Recipients (Shelters & Community Centres)</h5>
+                            <small class="text-muted">Registered demand destinations with polymorphic food category constraints</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary-green" data-bs-toggle="modal" data-bs-target="#modal-add-recipient">
+                            <i class="bi bi-plus-circle me-1"></i> Add Recipient
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Recipient ID</th>
+                                    <th>Name</th>
+                                    <th>Type (Polymorphism)</th>
+                                    <th>Location</th>
+                                    <th>Total Demand</th>
+                                    <th>Remaining Demand</th>
+                                    <th>Accepted Food Categories</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recipients-table-body">
+                                <tr><td colspan="8" class="text-center py-3">Loading recipients...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 9: VEHICLE MANAGEMENT ================= -->
+            <div class="page-view d-none" id="view-vehicles">
+                <div class="card card-custom">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><i class="bi bi-truck-front text-success me-2"></i>Volunteer Delivery Vehicles</h5>
+                            <small class="text-muted">Fleet assets and capacity for time-constrained transit dispatch</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary-green" data-bs-toggle="modal" data-bs-target="#modal-add-vehicle">
+                            <i class="bi bi-plus-circle me-1"></i> Add Vehicle
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Vehicle ID</th>
+                                    <th>Vehicle Name</th>
+                                    <th>Current Location</th>
+                                    <th>Portion Capacity</th>
+                                    <th>Availability Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vehicles-table-body">
+                                <tr><td colspan="6" class="text-center py-3">Loading vehicles...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 10: REPORTS & ANALYTICS ================= -->
+            <div class="page-view d-none" id="view-reports">
+                <div class="card card-custom mb-4">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><i class="bi bi-graph-up-arrow text-success me-2"></i>Reports & Data Structures Demonstration</h5>
+                            <small class="text-muted">Real-time inspection of active algorithms and core computer science data structures</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-green" onclick="loadReportsView()">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4 mb-4">
+                            <!-- PriorityQueue Demonstration -->
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 bg-light h-100 shadow-xs">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="fw-bold text-success mb-0"><i class="bi bi-sort-down me-1"></i>Java PriorityQueue (Min-Heap by Use-By)</h6>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle small">O(log n)</span>
+                                    </div>
+                                    <p class="small text-muted mb-3">
+                                        Surplus food batches ordered deterministically by <strong>Earliest Use-By Time First</strong>. Ties are resolved by Batch ID.
+                                    </p>
+                                    <div class="dsa-pq-terminal">
+                                        <ol class="ps-3" id="dsa-pq-list">
+                                            <li>Loading queue items...</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Adjacency List Demonstration -->
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 bg-light h-100 shadow-xs">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="fw-bold text-primary mb-0"><i class="bi bi-bezier2 me-1"></i>Custom Adjacency-List Road Graph</h6>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle small">Adjacency List</span>
+                                    </div>
+                                    <p class="small text-muted mb-3">
+                                        Weighted graph storing verified travel times in minutes for Dijkstra routing. Non-library implementation.
+                                    </p>
+                                    <div class="dsa-code-terminal">
+                                        <pre class="small mb-0 font-monospace text-info" id="dsa-graph-view">Loading graph...</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SDG Connections Section -->
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="sdg-card sdg-card-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge sdg-badge-2 fw-bold">UN SDG 2</span>
+                                        <i class="bi bi-egg-fried text-danger fs-5"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-danger mb-1">Zero Hunger</h6>
+                                    <p class="small text-muted mb-0">Redirects edible surplus to shelters and orphanages before expiry strikes.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="sdg-card sdg-card-12">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge sdg-badge-12 fw-bold">UN SDG 12</span>
+                                        <i class="bi bi-recycle text-warning fs-5"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-warning mb-1">Responsible Consumption</h6>
+                                    <p class="small text-muted mb-0">Eliminates avoidable food waste across institutional banquets and bulk catering.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="sdg-card sdg-card-13">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge sdg-badge-13 fw-bold">UN SDG 13</span>
+                                        <i class="bi bi-globe-americas text-success fs-5"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-success mb-1">Climate Action</h6>
+                                    <p class="small text-muted mb-0">Curbs greenhouse methane emissions by preventing surplus food landfill rotting.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 11: SIMULATED CLOCK ================= -->
+            <div class="page-view d-none" id="view-clock">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="card card-custom h-100">
+                            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                <h5><i class="bi bi-clock-history text-success me-2"></i>Simulated Clock Controls</h5>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle small">Virtual Timeline</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Controls the virtual timeline for matching, Dijkstra completion calculations, 
+                                    and automatic food expiry. Does not alter computer operating system time.
+                                </p>
+                                <div class="chronometer-container my-3">
+                                    <div class="chronometer-time" id="clock-page-display">10:00</div>
+                                    <span class="badge bg-success-subtle text-success fs-6 border border-success-subtle">
+                                        <span class="status-live-dot me-1"></span> Active Simulated Time
+                                    </span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark"><i class="bi bi-alarm me-1 text-primary"></i>Set Custom Simulated Time (HH:mm)</label>
+                                    <div class="input-group">
+                                        <input type="time" class="form-control" id="custom-clock-input" value="10:00">
+                                        <button class="btn btn-primary-green" onclick="applyCustomClock()">Set Time</button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold text-dark"><i class="bi bi-hourglass me-1 text-success"></i>Safety Handover Allowance (Minutes)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="handover-input" value="10" min="0">
+                                        <button class="btn btn-outline-green" onclick="applyHandoverMinutes()">Update Handover</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card card-custom h-100">
+                            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                <h5><i class="bi bi-hourglass-split text-danger me-2"></i>Automated Expiry Scanner</h5>
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle small">Hygiene Protection</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Scans all registered surplus food batches against current simulated time. 
+                                    Any batch with <code>Current Time &ge; Declared Use-By Time</code> is marked 
+                                    <strong>EXPIRED</strong>, portion availability is locked to 0, and the item is 
+                                    ejected from the active PriorityQueue.
+                                </p>
+                                <button class="btn btn-danger w-100 py-2 mb-3 shadow-sm" onclick="triggerExpiryCheck()">
+                                    <i class="bi bi-shield-x me-1"></i> Scan and Invalidate Expired Batches
+                                </button>
+                                <div id="expiry-result-log" class="p-3 bg-light rounded-3 border small">
+                                    <i class="bi bi-info-circle text-muted me-1"></i> Click the button above to run the scan.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 12: AUDIT TRAIL ================= -->
+            <div class="page-view d-none" id="view-history">
+                <div class="card card-custom">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5><i class="bi bi-journal-text text-success me-2"></i>Audit Trail & Allocation History</h5>
+                            <small class="text-muted">Chronological immutable audit log of reservations, dispatch events, and delivery confirmations</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-green" onclick="loadHistoryView()">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Log
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>History ID</th>
+                                    <th>Allocation ID</th>
+                                    <th>Event</th>
+                                    <th>Batch ID</th>
+                                    <th>Recipient</th>
+                                    <th>Vehicle</th>
+                                    <th>Quantity</th>
+                                    <th>Timestamp</th>
+                                    <th>Audit Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                <tr><td colspan="9" class="text-center py-3">Loading history records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 13: SETTINGS ================= -->
+            <div class="page-view d-none" id="view-settings">
+                <div class="row justify-content-center">
+                    <div class="col-lg-9">
+                        <div class="card card-custom">
+                            <div class="card-header-custom">
+                                <h5><i class="bi bi-gear text-success me-2"></i>System Architecture & Platform Specifications</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="mb-4">
+                                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-hdd-network text-primary me-2"></i>Core Enterprise Technology Stack</h6>
+                                    <div class="p-3 bg-light rounded-3 border small">
+                                        <div class="row g-2">
+                                            <div class="col-sm-4 text-muted">Backend Framework:</div>
+                                            <div class="col-sm-8 fw-semibold text-dark">Spring Boot 3.2.4 (Java 21 LTS)</div>
+                                            <div class="col-sm-4 text-muted">Primary Relational DB:</div>
+                                            <div class="col-sm-8 fw-semibold text-dark">MySQL on XAMPP (Port 3306)</div>
+                                            <div class="col-sm-4 text-muted">Routing Engine:</div>
+                                            <div class="col-sm-8 fw-semibold text-dark">Dijkstra Shortest Path (Custom Adjacency List + Min-Heap)</div>
+                                            <div class="col-sm-4 text-muted">Dispatch Queue:</div>
+                                            <div class="col-sm-8 fw-semibold text-dark">Java PriorityQueue (Earliest Use-By First)</div>
+                                            <div class="col-sm-4 text-muted">Frontend Architecture:</div>
+                                            <div class="col-sm-8 fw-semibold text-dark">Bootstrap 5.3 + Vanilla JS + Inter Typography</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-shield-check text-success me-2"></i>Access Control & Security Rules</h6>
+                                    <div class="p-3 bg-light rounded-3 border small">
+                                        <div class="d-flex align-items-start gap-2 mb-2">
+                                            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                                            <div>
+                                                <strong>Role-Based Access Control (RBAC):</strong> Strict backend verification via <code>RoleAuthorizationInterceptor</code> enforcing separated ADMIN and DONOR permissions.
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-start gap-2 mb-2">
+                                            <i class="bi bi-lock-fill text-primary mt-1"></i>
+                                            <div>
+                                                <strong>Insecure Direct Object Reference (IDOR) Shield:</strong> Donors can only inspect batches and contribution reports belonging to their own verified identity.
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-start gap-2">
+                                            <i class="bi bi-shield-slash text-danger mt-1"></i>
+                                            <div>
+                                                <strong>Privilege Escalation Protection:</strong> Public registration strictly assigns <code>DONOR</code> role. Admin privileges cannot be assigned or manipulated from user forms.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- /page-container -->
+    </div> <!-- /main-content -->
+</div> <!-- /app-container -->
+
+<!-- ======================================================================
+     MODALS
+     ====================================================================== -->
+
+<!-- Modal: Reject Batch with Reason -->
+<div class="modal fade" id="modal-reject-batch" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom bg-danger-subtle py-3">
+                <h5 class="modal-title fw-bold text-danger d-flex align-items-center">
+                    <i class="bi bi-x-circle-fill me-2 fs-5"></i> Reject Surplus Food Batch
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="small text-muted mb-3">
+                    Specify the technical or hygienic rejection reason for batch <strong id="reject-modal-batch-id" class="font-monospace text-dark">--</strong>. 
+                    This feedback will be instantly delivered to the donor's dashboard.
+                </p>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-dark">Rejection Reason <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="reject-reason-input" rows="3" placeholder="e.g. Insufficient shelf-life remaining for safe delivery, inadequate hygienic packaging, outside delivery zone..."></textarea>
+                    <div class="invalid-feedback" id="reject-reason-feedback">Please enter a reason for rejecting this donation batch.</div>
+                </div>
+            </div>
+            <div class="modal-footer border-top bg-light">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="confirmRejectBatchAction()">
+                    <i class="bi bi-x-octagon me-1"></i> Confirm Rejection
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: View Donor History & Profile -->
+<div class="modal fade" id="modal-donor-history" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom bg-light py-3">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center" id="donor-history-modal-title">
+                    <i class="bi bi-person-badge text-success me-2 fs-5"></i> Donor Profile & Donation History
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="donor-history-modal-body">
+                <div class="text-center py-4"><span class="spinner-border spinner-border-sm me-2 text-success"></span> Loading donor records...</div>
+            </div>
+            <div class="modal-footer border-top bg-light">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add Food Batch -->
+<div class="modal fade" id="modal-add-batch" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom bg-light py-3">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center">
+                    <i class="bi bi-egg-fried text-success me-2 fs-5"></i> Add Surplus Food Batch
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="form-add-batch">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Batch ID <span class="text-muted">(e.g. B23)</span></label>
+                        <input type="text" class="form-control" id="new-batch-id" placeholder="e.g. B23" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Donor Organization</label>
+                        <select class="form-select" id="new-batch-donor" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Food Category</label>
+                        <select class="form-select" id="new-batch-category" required>
+                            <option value="MEALS">Meals</option>
+                            <option value="BIRYANI">Biryani</option>
+                            <option value="RICE">Rice</option>
+                            <option value="CHAPATI">Chapati</option>
+                            <option value="BREAD">Bread</option>
+                            <option value="FRUITS">Fruits</option>
+                            <option value="VEGETABLES">Vegetables</option>
+                            <option value="PACKED_FOOD">Packed Food</option>
+                        </select>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-dark">Total Portions</label>
+                            <input type="number" class="form-control" id="new-batch-portions" min="1" placeholder="e.g. 50" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-dark">Use-By Time (HH:mm)</label>
+                            <input type="time" class="form-control" id="new-batch-useby" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Pickup Location</label>
+                        <select class="form-select" id="new-batch-location" required></select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-dark">Initial Approval Status</label>
+                        <select class="form-select" id="new-batch-approval">
+                            <option value="NOT_APPROVED">NOT_APPROVED (Pending Quality Verification)</option>
+                            <option value="APPROVED">APPROVED (Immediately Eligible in PriorityQueue)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary-green w-100 py-2">
+                        <i class="bi bi-check2-circle me-1"></i> Register Surplus Batch
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add Donor -->
+<div class="modal fade" id="modal-add-donor" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom bg-light py-3">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center">
+                    <i class="bi bi-building text-success me-2 fs-5"></i> Add Surplus Food Donor
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="form-add-donor">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Donor ID <span class="text-muted">(e.g. D06)</span></label>
+                        <input type="text" class="form-control" id="new-donor-id" placeholder="e.g. D06" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Donor Full Name</label>
+                        <input type="text" class="form-control" id="new-donor-name" placeholder="Contact person name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Organization / Commercial Name</label>
+                        <input type="text" class="form-control" id="new-donor-org" placeholder="e.g. Grand Palace Banquets" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-dark">Donor Type</label>
+                            <select class="form-select" id="new-donor-type">
+                                <option value="Individual">Individual</option>
+                                <option value="Restaurant">Restaurant</option>
+                                <option value="Hotel">Hotel</option>
+                                <option value="Institution">Institution</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-dark">City / Locality</label>
+                            <input type="text" class="form-control" id="new-donor-city" placeholder="e.g. Central" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Contact Phone</label>
+                        <input type="text" class="form-control" id="new-donor-phone" placeholder="e.g. +91 98765 43210" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-dark">Pickup Network Location</label>
+                        <select class="form-select" id="new-donor-location" required></select>
+                    </div>
+                    <button type="submit" class="btn btn-primary-green w-100 py-2">
+                        <i class="bi bi-check2-circle me-1"></i> Register Food Donor
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add Recipient -->
+<div class="modal fade" id="modal-add-recipient" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom bg-light py-3">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center">
+                    <i class="bi bi-people text-success me-2 fs-5"></i> Add Recipient Organization
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="form-add-recipient">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Recipient ID <span class="text-muted">(e.g. R05)</span></label>
+                        <input type="text" class="form-control" id="new-recipient-id" placeholder="e.g. R05" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Organization Name</label>
+                        <input type="text" class="form-control" id="new-recipient-name" placeholder="e.g. Hope Shelter Home" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Recipient Type (Polymorphic Rules)</label>
+                        <select class="form-select" id="new-recipient-type">
+                            <option value="Shelter">Shelter (Cooked Meals, Biryani, Rice, Bread)</option>
+                            <option value="Community Centre">Community Centre (Fruits, Veggies, Groceries, Bread)</option>
+                        </select>
+                    </div>
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-dark">Portion Demand</label>
+                            <input type="number" class="form-control" id="new-recipient-portions" min="1" placeholder="e.g. 100" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-dark">Delivery Location</label>
+                            <select class="form-select" id="new-recipient-location" required></select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary-green w-100 py-2">
+                        <i class="bi bi-check2-circle me-1"></i> Register Recipient
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add Vehicle -->
+<div class="modal fade" id="modal-add-vehicle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom bg-light py-3">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center">
+                    <i class="bi bi-truck text-success me-2 fs-5"></i> Add Volunteer Delivery Vehicle
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="form-add-vehicle">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Vehicle ID <span class="text-muted">(e.g. V04)</span></label>
+                        <input type="text" class="form-control" id="new-vehicle-id" placeholder="e.g. V04" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Vehicle Name / Model</label>
+                        <input type="text" class="form-control" id="new-vehicle-name" placeholder="e.g. Eco Van 04" required>
+                    </div>
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-dark">Portion Capacity</label>
+                            <input type="number" class="form-control" id="new-vehicle-capacity" min="1" placeholder="e.g. 120" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-dark">Current Location</label>
+                            <select class="form-select" id="new-vehicle-location" required></select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary-green w-100 py-2">
+                        <i class="bi bi-check2-circle me-1"></i> Register Vehicle
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom App Scripts -->
+<script src="/js/app.js"></script>
+<script src="/js/dashboard.js"></script>
+<script src="/js/donors.js"></script>
+<script src="/js/batches.js"></script>
+<script src="/js/recipients.js"></script>
+<script src="/js/vehicles.js"></script>
+<script src="/js/matching.js"></script>
+<script src="/js/allocations.js"></script>
+<script src="/js/routing.js"></script>
+<script src="/js/reports.js"></script>
+
+</body>
+</html>
